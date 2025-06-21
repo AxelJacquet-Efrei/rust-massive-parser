@@ -1,0 +1,11 @@
+[package]
+name = "parser-cli"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+parser-core = { path = "../parser-core" }
+txt-parser = { path = "../txt-parser" }
+json-parser = { path = "../json-parser" }
+anyhow = "1.0"
+procfs = "0.16"
