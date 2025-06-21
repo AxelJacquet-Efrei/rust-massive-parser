@@ -8,3 +8,6 @@ Cargo.lock
 # OS
 .DS_Store
 Thumbs.db
+# Large test files (never version these)
+big.json
+fichier_1GB.txt
