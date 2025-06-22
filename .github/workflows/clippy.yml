@@ -12,8 +12,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Set up Rust
-        uses: actions/setup-rust@v1
-        with:
-          rust-version: stable
+        uses: dtolnay/rust-toolchain@stable
       - name: Run Clippy
         run: cargo clippy --workspace --all-targets --all-features -- -D warnings
