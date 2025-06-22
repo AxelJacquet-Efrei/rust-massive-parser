@@ -5,5 +5,5 @@ edition = "2021"
 
 [dependencies]
 anyhow     = "1.0"
-core       = { path = "../core" }
+parser-core = { path = "../parser-core" }
 txt-parser = { path = "../txt-parser" }
