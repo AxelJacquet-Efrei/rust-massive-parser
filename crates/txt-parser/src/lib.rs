@@ -79,12 +79,9 @@ impl TxtParser {
                 let slice = &data[start as usize .. (start + len) as usize];
                 std::str::from_utf8(slice)?;
             }
-        } else {
-            // Vérification explicite UTF-8 sur la première ligne (robustesse)
-            if let Some(&(start, len)) = offsets.get(0) {
-                let slice = &data[start as usize .. (start + len) as usize];
-                std::str::from_utf8(slice)?;
-            }
+        } else if let Some(&(start, len)) = offsets.first() {
+            let slice = &data[start as usize .. (start + len) as usize];
+            std::str::from_utf8(slice)?;
         }
 
         Ok(Document {
@@ -131,11 +128,9 @@ impl TxtParser {
                 let slice = &data[start as usize .. (start + len) as usize];
                 std::str::from_utf8(slice)?;
             }
-        } else {
-            if let Some(&(start, len)) = offsets.get(0) {
-                let slice = &data[start as usize .. (start + len) as usize];
-                std::str::from_utf8(slice)?;
-            }
+        } else if let Some(&(start, len)) = offsets.first() {
+            let slice = &data[start as usize .. (start + len) as usize];
+            std::str::from_utf8(slice)?;
         }
         // 5) Copie le buffer dans un Arc<Vec<u8>> pour respecter l'API Document
         let arc_data = Arc::new(data.to_vec());
@@ -194,11 +189,9 @@ impl TxtParser {
                 let slice = &data[start as usize .. (start + len) as usize];
                 std::str::from_utf8(slice)?;
             }
-        } else {
-            if let Some(&(start, len)) = offsets.get(0) {
-                let slice = &data[start as usize .. (start + len) as usize];
-                std::str::from_utf8(slice)?;
-            }
+        } else if let Some(&(start, len)) = offsets.first() {
+            let slice = &data[start as usize .. (start + len) as usize];
+            std::str::from_utf8(slice)?;
         }
         Ok(Document {
             data: DocumentData::Mmap(Arc::new(mmap)),

@@ -67,7 +67,7 @@ impl CsvParser {
             for &(st, ln) in offsets {
                 unsafe { let _ = std::str::from_utf8_unchecked(&data[st as usize..(st + ln) as usize]); }
             }
-        } else if let Some(&(st, ln)) = offsets.get(0) {
+        } else if let Some(&(st, ln)) = offsets.first() {
             unsafe { let _ = std::str::from_utf8_unchecked(&data[st as usize..(st + ln) as usize]); }
         }
         Ok(())
