@@ -1,8 +1,10 @@
 [workspace]
 members = [
-  "crates/core",
+  "crates/parser-core",
   "crates/txt-parser",
   "crates/cli",
+  "crates/csv-parser",
+  "crates/json-parser",
   "criterion-test"
 ]
 resolver = "2"
