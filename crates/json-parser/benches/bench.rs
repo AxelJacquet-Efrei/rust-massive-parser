@@ -2,7 +2,6 @@ use criterion::{criterion_group, criterion_main, Criterion};
 use json_parser::JsonParser;
 use std::io::Write;
 use tempfile::NamedTempFile;
-use std::path::Path;
 
 fn bench_parse_jsonl(c: &mut Criterion) {
     let mut file = NamedTempFile::new().unwrap();

@@ -15,3 +15,18 @@ parser-core = { path = "../parser-core" }
 [dev-dependencies]
 criterion = "0.6.0"
 tempfile = "3.20.0"
+
+[[bin]]
+name = "bench_manual"
+path = "src/bench_manual.rs"
+
+[[bin]]
+name = "convert_to_jsonl"
+path = "src/convert_to_jsonl.rs"
+
+[[bin]]
+name = "bench_convert_and_parse"
+path = "src/bench_convert_and_parse.rs"
+
+[profile.bench]
+debug = true

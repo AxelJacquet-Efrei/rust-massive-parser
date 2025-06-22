@@ -5,5 +5,8 @@ members = [
     "crates/txt-parser",
     "crates/json-parser",
     "crates/csv-parser"
-]
+, "criterion-test"]
 resolver = "2"
+
+[profile.bench]
+debug = true
