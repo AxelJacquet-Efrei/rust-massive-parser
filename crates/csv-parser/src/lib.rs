@@ -9,9 +9,9 @@
 
 use memchr::memchr_iter;
 use memmap2::MmapOptions;
+use parser_core::{Document, DocumentData, DocumentParser, ParseError};
 use rayon::prelude::*;
 use std::{fs::File, path::Path, sync::Arc};
-use parser_core::{Document, DocumentParser, ParseError, DocumentData};
 
 const CHUNK_SIZE: usize = 64 * 1024 * 1024;
 const AVG_LINE_LEN: usize = 40;
@@ -25,7 +25,11 @@ impl CsvParser {
         let sample = &data[..data.len().min(4096)];
         let csv = sample.iter().filter(|&&b| b == b',').count();
         let tsv = sample.iter().filter(|&&b| b == b'\t').count();
-        if tsv > csv { b'\t' } else { b',' }
+        if tsv > csv {
+            b'\t'
+        } else {
+            b','
+        }
     }
 
     /// Indexe les offsets (start, len) de chaque ligne.
@@ -58,17 +62,24 @@ impl CsvParser {
                     local
                 },
             )
-            .reduce(Vec::new, |mut acc, mut local| { acc.append(&mut local); acc })
+            .reduce(Vec::new, |mut acc, mut local| {
+                acc.append(&mut local);
+                acc
+            })
     }
 
     /// Validation UTF-8 optionnelle.
     fn validate(data: &[u8], offsets: &[(u32, u32)], full: bool) -> Result<(), ParseError> {
         if full {
             for &(st, ln) in offsets {
-                unsafe { let _ = std::str::from_utf8_unchecked(&data[st as usize..(st + ln) as usize]); }
+                unsafe {
+                    let _ = std::str::from_utf8_unchecked(&data[st as usize..(st + ln) as usize]);
+                }
             }
-        } else if let Some(&(st, ln)) = offsets.get(0) {
-            unsafe { let _ = std::str::from_utf8_unchecked(&data[st as usize..(st + ln) as usize]); }
+        } else if let Some(&(st, ln)) = offsets.first() {
+            unsafe {
+                let _ = std::str::from_utf8_unchecked(&data[st as usize..(st + ln) as usize]);
+            }
         }
         Ok(())
     }
@@ -82,19 +93,27 @@ impl CsvParser {
         #[cfg(unix)]
         unsafe {
             libc::posix_madvise(
-                data.as_ptr() as *mut _, data.len(), libc::POSIX_MADV_SEQUENTIAL,
+                data.as_ptr() as *mut _,
+                data.len(),
+                libc::POSIX_MADV_SEQUENTIAL,
             );
         }
         let offsets = Self::compute_offsets(data, 1);
         Self::validate(data, &offsets, validate_utf8)?;
-        Ok(Document { data: DocumentData::Mmap(arc_map), offsets })
+        Ok(Document {
+            data: DocumentData::Mmap(arc_map),
+            offsets,
+        })
     }
 
     /// Parse un buffer mémoire, avec validation optionnelle.
     pub fn parse_buffer(data: &[u8], validate_utf8: bool) -> Result<Document, ParseError> {
         let offsets = Self::compute_offsets(data, 1);
         Self::validate(data, &offsets, validate_utf8)?;
-        Ok(Document { data: DocumentData::Buffer(Arc::new(data.to_vec())), offsets })
+        Ok(Document {
+            data: DocumentData::Buffer(Arc::new(data.to_vec())),
+            offsets,
+        })
     }
 
     /// Parse en n'indexant qu'une ligne sur `stride` (index partiel).
@@ -110,12 +129,17 @@ impl CsvParser {
         #[cfg(unix)]
         unsafe {
             libc::posix_madvise(
-                data.as_ptr() as *mut _, data.len(), libc::POSIX_MADV_SEQUENTIAL,
+                data.as_ptr() as *mut _,
+                data.len(),
+                libc::POSIX_MADV_SEQUENTIAL,
             );
         }
         let offsets = Self::compute_offsets(data, stride);
         Self::validate(data, &offsets, validate_utf8)?;
-        Ok(Document { data: DocumentData::Mmap(arc_map), offsets })
+        Ok(Document {
+            data: DocumentData::Mmap(arc_map),
+            offsets,
+        })
     }
 }
 

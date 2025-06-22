@@ -41,8 +41,8 @@ impl JsonParser {
                 if !line.trim().is_empty() {
                     let mut line_bytes = line.as_bytes().to_vec();
                     match simd_json::to_owned_value(&mut line_bytes) {
-                        Ok(v) => values.push(serde_json::to_value(v)?),
-                        Err(_) => values.push(serde_json::from_str(line)?),
+                        Ok(v) => values.push(serde_json::to_value(v).map_err(|e| ParseError::Format(e.to_string()))?),
+                        Err(_) => values.push(serde_json::from_str(line).map_err(|e| ParseError::Format(e.to_string()))?),
                     }
                 }
             }
@@ -50,8 +50,8 @@ impl JsonParser {
         } else {
             let mut data_mut = data.clone();
             match simd_json::to_owned_value(&mut data_mut) {
-                Ok(v) => Ok(vec![serde_json::to_value(v)?]),
-                Err(_) => Ok(vec![serde_json::from_slice(&data)?]),
+                Ok(v) => Ok(vec![serde_json::to_value(v).map_err(|e| ParseError::Format(e.to_string()))?]),
+                Err(_) => Ok(vec![serde_json::from_slice(&data).map_err(|e| ParseError::Format(e.to_string()))?]),
             }
         }
     }
@@ -66,7 +66,7 @@ impl JsonParser {
         let values: Result<Vec<_>, _> = lines
             .par_iter()
             .filter(|line| !line.trim().is_empty())
-            .map(|line| serde_json::from_str::<Value>(line).map_err(ParseError::from))
+            .map(|line| serde_json::from_str::<Value>(line).map_err(|e| ParseError::Format(e.to_string())))
             .collect();
         values
     }
@@ -75,7 +75,7 @@ impl JsonParser {
         let file = File::open(path)?;
         let reader = std::io::BufReader::new(file);
         let mut deser = serde_json::Deserializer::from_reader(reader);
-        let v = T::deserialize(&mut deser)?;
+        let v = T::deserialize(&mut deser).map_err(|e| ParseError::Format(e.to_string()))?;
         Ok(v)
     }
     /// Choix auto du mode selon la taille et le format (JSONL ou massif).
@@ -106,7 +106,7 @@ impl JsonParser {
             let deser = serde_json::Deserializer::from_reader(reader);
             let iter = deser
                 .into_iter::<Value>()
-                .map(|v| v.map_err(ParseError::from));
+                .map(|v| v.map_err(|e| ParseError::Format(e.to_string())));
             Ok(JsonObjectIter::Array(Box::new(iter)))
         } else {
             // JSONL : une ligne = un objet JSON
@@ -114,7 +114,7 @@ impl JsonParser {
             let reader = BufReader::new(file);
             let iter = reader.lines().filter_map(|l| match l {
                 Ok(line) if !line.trim().is_empty() => {
-                    Some(serde_json::from_str::<Value>(&line).map_err(ParseError::from))
+                    Some(serde_json::from_str::<Value>(&line).map_err(|e| ParseError::Format(e.to_string())))
                 }
                 _ => None,
             });
@@ -165,8 +165,8 @@ impl JsonParser {
             .map(|line| {
                 let mut line_bytes = line.as_bytes().to_vec();
                 simd_json::to_owned_value(&mut line_bytes)
-                    .map(|v| serde_json::to_value(v).map_err(ParseError::from))
-                    .unwrap_or_else(|_| serde_json::from_str(line).map_err(ParseError::from))
+                    .map(|v| serde_json::to_value(v).map_err(|e| ParseError::Format(e.to_string())))
+                    .unwrap_or_else(|_| serde_json::from_str(line).map_err(|e| ParseError::Format(e.to_string())))
             })
             .collect();
         values.map(|v| v.into_iter().collect())
@@ -177,8 +177,8 @@ impl JsonParser {
         let data = std::fs::read(path)?;
         let mut data_mut = data.clone();
         match simd_json::to_owned_value(&mut data_mut) {
-            Ok(v) => Ok(vec![serde_json::to_value(v)?]),
-            Err(_) => Ok(vec![serde_json::from_slice(&data)?]),
+            Ok(v) => Ok(vec![serde_json::to_value(v).map_err(|e| ParseError::Format(e.to_string()))?]),
+            Err(_) => Ok(vec![serde_json::from_slice(&data).map_err(|e| ParseError::Format(e.to_string()))?]),
         }
     }
 }
@@ -197,7 +197,7 @@ impl DocumentParser for JsonParser {
         let mut offsets = Vec::with_capacity(values.len());
         let mut pos = 0u32;
         for v in values {
-            let s = serde_json::to_string(&v)?;
+            let s = serde_json::to_string(&v).map_err(|e| ParseError::Format(e.to_string()))?;
             let bytes = s.as_bytes();
             let len = bytes.len() as u32;
             buffer.extend_from_slice(bytes);

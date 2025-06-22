@@ -1,6 +1,6 @@
-use parser_core::{Document, DocumentData, DocumentParser, ParseError};
 use memchr::memchr_iter;
 use memmap2::MmapOptions;
+use parser_core::{Document, DocumentData, DocumentParser, ParseError};
 use rayon::prelude::*;
 use std::{fs::File, path::Path, sync::Arc};
 
@@ -57,8 +57,8 @@ impl DocumentParser for TxtParser {
         }
 
         // 6) Vérification explicite UTF-8 sur la première ligne (robustesse)
-        if let Some(&(start, len)) = offsets.get(0) {
-            let slice = &data[start as usize .. (start + len) as usize];
+        if let Some(&(start, len)) = offsets.first() {
+            let slice = &data[start as usize..(start + len) as usize];
             std::str::from_utf8(slice)?;
         }
 
