@@ -4,6 +4,7 @@
 [![Clippy](https://github.com/AxelJacquet-Efrei/rust-massive-parser/actions/workflows/clippy.yml/badge.svg)](https://github.com/AxelJacquet-Efrei/rust-massive-parser/actions/workflows/clippy.yml)
 [![Coverage](https://github.com/AxelJacquet-Efrei/rust-massive-parser/actions/workflows/coverage.yml/badge.svg)](https://github.com/AxelJacquet-Efrei/rust-massive-parser/actions/workflows/coverage.yml)
 [![Docs](https://docs.rs/json-parser/badge.svg)](https://docs.rs/json-parser)
+[![dependency status](https://deps.rs/repo/github/AxelJacquet-Efrei/rust-massive-parser/status.svg)](https://deps.rs/repo/github/AxelJacquet-Efrei/rust-massive-parser)
 
 Parser ultra-performant pour fichiers texte, CSV/TSV et JSON (JSONL/tableau), adapté au traitement de données massives (1 Go à 100+ Go).
 
