@@ -1,10 +1,13 @@
 # parser-cli
 
-CLI auto-adaptatif pour parser des fichiers texte ou JSON massifs.
+CLI spécialisé pour parsing massif TXT, CSV/TSV, JSON/JSONL.
 
-- Détecte automatiquement le format (txt/json).
-- Affiche des métriques détaillées (temps, mémoire, mode).
-- Ne tente pas d’afficher le contenu des très gros fichiers.
-- Utilise les parsers du workspace via l’API unifiée `Document`.
+- Utilisez le binaire dédié pour chaque format :
+  - `txt-cli fichier.txt`
+  - `csv-cli fichier.csv` ou `csv-cli fichier.tsv`
+  - `json-cli fichier.json` ou `json-cli fichier.jsonl`
+- Refus explicite si le format ne correspond pas (code de sortie 2).
+- Parsing silencieux, ultra-rapide, prêt pour usage batch ou serveur web.
+- Code de sortie : 0 = OK, 1 = erreur parsing, 2 = mauvais format.
 
-Pour l’intégration Rust ou l’API, voir la doc globale à la racine.
+Pour l’intégration Rust ou l’API, voir la doc globale à la racine et `INTEGRATION.md`.

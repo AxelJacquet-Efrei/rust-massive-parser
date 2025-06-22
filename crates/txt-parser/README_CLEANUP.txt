@@ -2,10 +2,9 @@
 
 Parser texte haute performance pour très gros fichiers (1 Go+).
 
-- Indexation partielle ou complète (stride, streaming)
-- Zéro-copy (mmap), multithread, robuste UTF-8
-- API unifiée via `Document` (voir doc globale)
-- Refus explicite si le format ne correspond pas (code de sortie 2)
+- Indexation partielle ou complète (stride, streaming).
+- Zéro-copy (mmap), multithread, robuste UTF-8.
+- API unifiée via `Document` (voir doc globale).
 
 ## Exemple rapide
 

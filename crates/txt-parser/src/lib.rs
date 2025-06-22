@@ -213,4 +213,3 @@ impl DocumentParser for TxtParser {
     }
 }
 
-// (Suppression du mod tests ici, les tests d'intégration sont déplacés dans tests/integration.rs)

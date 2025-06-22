@@ -1,15 +1,13 @@
 # json-parser
 
-Un parser JSON haute performance pour petits et très gros fichiers, adapté à un usage serveur web ou batch.
+Parser JSON haute performance pour petits et très gros fichiers, usage batch ou serveur web.
 
-- Utilise `serde_json` pour les petits fichiers (chargement complet en mémoire).
-- Utilise un parsing streaming (ligne à ligne pour JSONL, ou incrémental) pour les très gros fichiers.
-- API similaire à `txt-parser` pour faciliter l'intégration.
-- Compatible avec le trait commun de `parser-core`.
-
-# Documentation spécifique JSON
-
-Voir la documentation d’intégration générale à la racine (`../../INTEGRATION.md`).
+- Utilise `simd-json` (SIMD) pour parsing massif, fallback sur `serde_json`.
+- Détection automatique JSONL (une ligne = un objet) ou JSON standard (tableau/objet).
+- Mode CLI : `json-cli fichier.json [mode]` où `[mode]` = `auto` (défaut), `simd`, `stream`, `jsonl`.
+- Parsing JSONL massivement parallèle (rayon + SIMD).
+- API unifiée avec `Document` (voir parser-core).
+- Refus explicite si le format ne correspond pas (code de sortie 2).
 
 ## Utilisation rapide
 
@@ -21,6 +19,5 @@ for objet in doc.lines() {
 }
 ```
 
-- Support JSONL et tableaux massifs.
-- API unifiée avec le parser texte.
+- Voir aussi `../../INTEGRATION.md` pour l'intégration multi-format.
 - Benchmarks : `cargo bench -p json-parser`

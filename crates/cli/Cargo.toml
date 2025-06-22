@@ -4,8 +4,24 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-parser-core = { path = "../parser-core" }
-txt-parser = { path = "../txt-parser" }
+anyhow      = "1.0"
+parser-core  = { path = "../parser-core" }
+txt-parser  = { path = "../txt-parser" }
 json-parser = { path = "../json-parser" }
-anyhow = "1.0"
-procfs = "0.16"
+csv-parser  = { path = "../csv-parser" }
+
+[[bin]]
+name = "csv-cli"
+path = "src/csv_main.rs"
+
+[[bin]]
+name = "txt-cli"
+path = "src/txt_main.rs"
+
+[[bin]]
+name = "json-cli"
+path = "src/json_main.rs"
+
+[[bin]]
+name = "parser-cli"
+path = "src/main.rs"

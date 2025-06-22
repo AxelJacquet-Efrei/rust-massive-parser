@@ -31,23 +31,28 @@ impl Iterator for JsonObjectIter {
 }
 
 impl JsonParser {
-    /// Parse un fichier JSON (petit ou gros). Pour l'instant, charge tout en mémoire.
+    /// Parse un fichier JSON (petit ou gros). Utilise simd-json si possible, sinon fallback serde_json.
     pub fn parse(path: &Path) -> Result<Vec<Value>, ParseError> {
-        let data = std::fs::read_to_string(path)?;
-        // Tentative de parsing comme JSONL (une valeur JSON par ligne)
-        if data.lines().count() > 1 {
+        let data = std::fs::read(path)?;
+        let text = std::str::from_utf8(&data)?;
+        if text.lines().count() > 1 {
             let mut values = Vec::new();
-            for line in data.lines() {
+            for line in text.lines() {
                 if !line.trim().is_empty() {
-                    let v: Value = serde_json::from_str(line)?;
-                    values.push(v);
+                    let mut line_bytes = line.as_bytes().to_vec();
+                    match simd_json::to_owned_value(&mut line_bytes) {
+                        Ok(v) => values.push(serde_json::to_value(v)?),
+                        Err(_) => values.push(serde_json::from_str(line)?),
+                    }
                 }
             }
             Ok(values)
         } else {
-            // Sinon, parsing classique (JSON unique)
-            let v: Value = serde_json::from_str(&data)?;
-            Ok(vec![v])
+            let mut data_mut = data.clone();
+            match simd_json::to_owned_value(&mut data_mut) {
+                Ok(v) => Ok(vec![serde_json::to_value(v)?]),
+                Err(_) => Ok(vec![serde_json::from_slice(&data)?]),
+            }
         }
     }
     /// Parse un fichier JSONL (une valeur JSON par ligne) en parallèle, mmap + rayon.
@@ -112,6 +117,66 @@ impl JsonParser {
                     _ => None,
                 });
             Ok(JsonObjectIter::Jsonl(Box::new(iter)))
+        }
+    }
+
+    /// Détecte automatiquement si le fichier est JSONL (une ligne = un objet) ou JSON standard (objet/tableau).
+    fn detect_jsonl(path: &Path) -> Result<bool, ParseError> {
+        let file = File::open(path)?;
+        let mut reader = BufReader::new(file);
+        let mut buf = [0u8; 32];
+        let n = reader.read(&mut buf)?;
+        let s = std::str::from_utf8(&buf[..n])?.trim_start();
+        // Si ça commence par [ ou {, c'est du JSON standard
+        if s.starts_with('[') || s.starts_with('{') {
+            Ok(false)
+        } else {
+            Ok(true)
+        }
+    }
+
+    /// Parse un fichier JSON en mode auto, simd, ou streaming, ou JSONL parallèle.
+    pub fn parse_mode(path: &Path, mode: Option<&str>) -> Result<Vec<Value>, ParseError> {
+        match mode {
+            Some("jsonl") => Self::parse_jsonl_parallel_simd(path),
+            Some("stream") => Ok(vec![Self::parse_streaming::<Value>(path)?]),
+            Some("simd") => Self::parse_simd(path),
+            _ => {
+                if Self::detect_jsonl(path)? {
+                    Self::parse_jsonl_parallel_simd(path)
+                } else {
+                    Self::parse_simd(path)
+                }
+            }
+        }
+    }
+
+    /// Parsing JSONL en parallèle avec simd-json.
+    pub fn parse_jsonl_parallel_simd(path: &Path) -> Result<Vec<Value>, ParseError> {
+        let file = File::open(path)?;
+        let mmap = unsafe { MmapOptions::new().map(&file)? };
+        let data = &mmap[..];
+        let text = std::str::from_utf8(data)?;
+        let lines: Vec<&str> = text.lines().filter(|l| !l.trim().is_empty()).collect();
+        let values: Result<Vec<_>, _> = lines
+            .par_iter()
+            .map(|line| {
+                let mut line_bytes = line.as_bytes().to_vec();
+                simd_json::to_owned_value(&mut line_bytes)
+                    .map(|v| serde_json::to_value(v).map_err(ParseError::from))
+                    .unwrap_or_else(|_| serde_json::from_str(line).map_err(ParseError::from))
+            })
+            .collect();
+        values.map(|v| v.into_iter().collect())
+    }
+
+    /// Parsing JSON standard (objet/tableau) avec simd-json.
+    pub fn parse_simd(path: &Path) -> Result<Vec<Value>, ParseError> {
+        let data = std::fs::read(path)?;
+        let mut data_mut = data.clone();
+        match simd_json::to_owned_value(&mut data_mut) {
+            Ok(v) => Ok(vec![serde_json::to_value(v)?]),
+            Err(_) => Ok(vec![serde_json::from_slice(&data)?]),
         }
     }
 }

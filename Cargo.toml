@@ -3,6 +3,7 @@ members = [
     "crates/cli",
     "crates/parser-core",
     "crates/txt-parser",
-    "crates/json-parser"
+    "crates/json-parser",
+    "crates/csv-parser"
 ]
 resolver = "2"

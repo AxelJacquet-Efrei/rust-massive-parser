@@ -2,7 +2,7 @@
 //!
 //! Garanties :
 //! - Zéro-copy (mmap)
-//! - Thread-safe (Arc<Mmap>)
+//! - Thread-safe (`Arc<Mmap>`)
 //! - Accès rapide aux lignes
 //! - API ergonomique pour serveurs ou batch
 
