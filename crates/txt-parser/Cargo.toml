@@ -5,11 +5,11 @@ edition = "2021"
 
 [dependencies]
 parser-core = { path = "../parser-core" }
-memmap2   = "0.5"
-memchr    = "2.4"
-rayon     = "1.5"
+memmap2   = "0.9.5"
+memchr    = "2.7.5"
+rayon     = "1.10.0"
 libc      = "0.2"
 
 [dev-dependencies]
-tempfile = "3.10"
-criterion = "0.5"
+tempfile = "3.20.0"
+criterion = "0.6.0"
