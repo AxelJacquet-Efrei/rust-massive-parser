@@ -2,6 +2,7 @@
 
 <!-- Badges CI & Qualité -->
 [![CI](https://github.com/AxelJacquet-Efrei/rust-massive-parser/actions/workflows/ci.yml/badge.svg)](https://github.com/AxelJacquet-Efrei/rust-massive-parser/actions/workflows/ci.yml)
+[![Coverage](https://github.com/AxelJacquet-Efrei/rust-massive-parser/actions/workflows/coverage.yml/badge.svg)](https://github.com/AxelJacquet-Efrei/rust-massive-parser/actions/workflows/coverage.yml)
 [![Docs.rs](https://docs.rs/parser-core/badge.svg)](https://docs.rs/parser-core)
 [![Clippy](https://github.com/AxelJacquet-Efrei/rust-massive-parser/actions/workflows/clippy.yml/badge.svg)](https://github.com/AxelJacquet-Efrei/rust-massive-parser/actions/workflows/clippy.yml)
 [![dependency status](https://deps.rs/repo/github/AxelJacquet-Efrei/rust-massive-parser/status.svg)](https://deps.rs/repo/github/AxelJacquet-Efrei/rust-massive-parser)
