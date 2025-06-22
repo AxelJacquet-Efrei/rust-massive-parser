@@ -41,8 +41,14 @@ impl JsonParser {
                 if !line.trim().is_empty() {
                     let mut line_bytes = line.as_bytes().to_vec();
                     match simd_json::to_owned_value(&mut line_bytes) {
-                        Ok(v) => values.push(serde_json::to_value(v).map_err(|e| ParseError::Format(e.to_string()))?),
-                        Err(_) => values.push(serde_json::from_str(line).map_err(|e| ParseError::Format(e.to_string()))?),
+                        Ok(v) => values.push(
+                            serde_json::to_value(v)
+                                .map_err(|e| ParseError::Format(e.to_string()))?,
+                        ),
+                        Err(_) => values.push(
+                            serde_json::from_str(line)
+                                .map_err(|e| ParseError::Format(e.to_string()))?,
+                        ),
                     }
                 }
             }
@@ -50,8 +56,13 @@ impl JsonParser {
         } else {
             let mut data_mut = data.clone();
             match simd_json::to_owned_value(&mut data_mut) {
-                Ok(v) => Ok(vec![serde_json::to_value(v).map_err(|e| ParseError::Format(e.to_string()))?]),
-                Err(_) => Ok(vec![serde_json::from_slice(&data).map_err(|e| ParseError::Format(e.to_string()))?]),
+                Ok(v) => Ok(vec![
+                    serde_json::to_value(v).map_err(|e| ParseError::Format(e.to_string()))?
+                ]),
+                Err(_) => {
+                    Ok(vec![serde_json::from_slice(&data)
+                        .map_err(|e| ParseError::Format(e.to_string()))?])
+                }
             }
         }
     }
@@ -66,7 +77,9 @@ impl JsonParser {
         let values: Result<Vec<_>, _> = lines
             .par_iter()
             .filter(|line| !line.trim().is_empty())
-            .map(|line| serde_json::from_str::<Value>(line).map_err(|e| ParseError::Format(e.to_string())))
+            .map(|line| {
+                serde_json::from_str::<Value>(line).map_err(|e| ParseError::Format(e.to_string()))
+            })
             .collect();
         values
     }
@@ -113,9 +126,10 @@ impl JsonParser {
             let file = File::open(path)?;
             let reader = BufReader::new(file);
             let iter = reader.lines().filter_map(|l| match l {
-                Ok(line) if !line.trim().is_empty() => {
-                    Some(serde_json::from_str::<Value>(&line).map_err(|e| ParseError::Format(e.to_string())))
-                }
+                Ok(line) if !line.trim().is_empty() => Some(
+                    serde_json::from_str::<Value>(&line)
+                        .map_err(|e| ParseError::Format(e.to_string())),
+                ),
                 _ => None,
             });
             Ok(JsonObjectIter::Jsonl(Box::new(iter)))
@@ -166,7 +180,9 @@ impl JsonParser {
                 let mut line_bytes = line.as_bytes().to_vec();
                 simd_json::to_owned_value(&mut line_bytes)
                     .map(|v| serde_json::to_value(v).map_err(|e| ParseError::Format(e.to_string())))
-                    .unwrap_or_else(|_| serde_json::from_str(line).map_err(|e| ParseError::Format(e.to_string())))
+                    .unwrap_or_else(|_| {
+                        serde_json::from_str(line).map_err(|e| ParseError::Format(e.to_string()))
+                    })
             })
             .collect();
         values.map(|v| v.into_iter().collect())
@@ -177,8 +193,12 @@ impl JsonParser {
         let data = std::fs::read(path)?;
         let mut data_mut = data.clone();
         match simd_json::to_owned_value(&mut data_mut) {
-            Ok(v) => Ok(vec![serde_json::to_value(v).map_err(|e| ParseError::Format(e.to_string()))?]),
-            Err(_) => Ok(vec![serde_json::from_slice(&data).map_err(|e| ParseError::Format(e.to_string()))?]),
+            Ok(v) => Ok(vec![
+                serde_json::to_value(v).map_err(|e| ParseError::Format(e.to_string()))?
+            ]),
+            Err(_) => Ok(vec![
+                serde_json::from_slice(&data).map_err(|e| ParseError::Format(e.to_string()))?
+            ]),
         }
     }
 }
