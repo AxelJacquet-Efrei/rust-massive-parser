@@ -8,12 +8,22 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        rust: [stable, beta, nightly]
     steps:
       - uses: actions/checkout@v4
       - name: Set up Rust
-        uses: dtolnay/rust-toolchain@stable
+        uses: dtolnay/rust-toolchain@${{ matrix.rust }}
       - name: Build
         run: cargo build --workspace --all-targets --release
       - name: Run tests
         run: cargo test --workspace --all-features --release
+      - name: Check formatting
+        run: cargo fmt --all -- --check
+      - name: Audit dependencies
+        run: cargo install cargo-audit && cargo audit || true
+      - name: Build documentation
+        run: cargo doc --workspace --no-deps --release
