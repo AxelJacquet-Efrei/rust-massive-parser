@@ -9,7 +9,11 @@ fn main() -> Result<()> {
         .nth(1)
         .expect("Usage: txt-cli <fichier.txt>")
         .into();
-    let ext = path.extension().and_then(|e| e.to_str()).unwrap_or("").to_ascii_lowercase();
+    let ext = path
+        .extension()
+        .and_then(|e| e.to_str())
+        .unwrap_or("")
+        .to_ascii_lowercase();
     if ext != "txt" {
         eprintln!("Erreur : ce parser n'accepte que les fichiers .txt");
         exit(2); // code 2 : mauvaise extension

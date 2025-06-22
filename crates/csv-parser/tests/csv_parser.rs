@@ -1,7 +1,7 @@
 use csv_parser::CsvParser;
 use parser_core::DocumentParser;
-use tempfile::NamedTempFile;
 use std::io::Write;
+use tempfile::NamedTempFile;
 
 #[test]
 fn test_parse_csv() {

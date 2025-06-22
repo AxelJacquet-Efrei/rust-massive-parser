@@ -1,8 +1,8 @@
-use txt_parser::TxtParser;
 use parser_core::{Document, DocumentParser};
 use std::fs::File;
 use std::io::Write;
 use tempfile::tempdir;
+use txt_parser::TxtParser;
 
 #[test]
 fn test_parse_and_access() {
@@ -17,7 +17,10 @@ fn test_parse_and_access() {
     let doc = TxtParser::parse(&file_path).unwrap();
     assert_eq!(doc.line_count(), 3);
     assert_eq!(doc.get_line(1).unwrap(), "ligne2");
-    assert_eq!(doc.lines().collect::<Vec<_>>(), vec!["ligne1", "ligne2", "ligne3"]);
+    assert_eq!(
+        doc.lines().collect::<Vec<_>>(),
+        vec!["ligne1", "ligne2", "ligne3"]
+    );
 }
 
 #[test]

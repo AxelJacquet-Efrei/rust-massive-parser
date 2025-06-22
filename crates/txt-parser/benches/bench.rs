@@ -1,8 +1,8 @@
 // Benchmark d'exemple pour txt-parser
-use txt_parser::TxtParser;
+use criterion::{criterion_group, criterion_main, Criterion};
 use parser_core::DocumentParser;
 use std::path::Path;
-use criterion::{criterion_group, criterion_main, Criterion};
+use txt_parser::TxtParser;
 
 fn bench_parse(c: &mut Criterion) {
     let path = Path::new("../../fichier_1GB.txt");

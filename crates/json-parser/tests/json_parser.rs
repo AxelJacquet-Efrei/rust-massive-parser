@@ -1,7 +1,7 @@
 use json_parser::JsonParser;
 use parser_core::Document;
-use tempfile::NamedTempFile;
 use std::io::Write;
+use tempfile::NamedTempFile;
 
 #[test]
 fn test_parse_jsonl() {

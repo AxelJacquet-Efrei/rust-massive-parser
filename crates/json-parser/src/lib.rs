@@ -4,14 +4,14 @@
 //! - Parsing streaming pour les gros fichiers (JSONL ou incrémental)
 //! - API similaire à txt-parser
 
-use parser_core::{ParseError, DocumentParser};
-use std::path::Path;
-use serde_json::Value;
 use memmap2::MmapOptions;
+use parser_core::{DocumentParser, ParseError};
 use rayon::prelude::*;
-use std::fs::File;
 use serde::de::DeserializeOwned;
+use serde_json::Value;
+use std::fs::File;
 use std::io::{BufRead, BufReader, Read};
+use std::path::Path;
 
 pub struct JsonParser;
 
@@ -104,18 +104,20 @@ impl JsonParser {
             let file = File::open(path)?;
             let reader = BufReader::new(file);
             let deser = serde_json::Deserializer::from_reader(reader);
-            let iter = deser.into_iter::<Value>().map(|v| v.map_err(ParseError::from));
+            let iter = deser
+                .into_iter::<Value>()
+                .map(|v| v.map_err(ParseError::from));
             Ok(JsonObjectIter::Array(Box::new(iter)))
         } else {
             // JSONL : une ligne = un objet JSON
             let file = File::open(path)?;
             let reader = BufReader::new(file);
-            let iter = reader
-                .lines()
-                .filter_map(|l| match l {
-                    Ok(line) if !line.trim().is_empty() => Some(serde_json::from_str::<Value>(&line).map_err(ParseError::from)),
-                    _ => None,
-                });
+            let iter = reader.lines().filter_map(|l| match l {
+                Ok(line) if !line.trim().is_empty() => {
+                    Some(serde_json::from_str::<Value>(&line).map_err(ParseError::from))
+                }
+                _ => None,
+            });
             Ok(JsonObjectIter::Jsonl(Box::new(iter)))
         }
     }

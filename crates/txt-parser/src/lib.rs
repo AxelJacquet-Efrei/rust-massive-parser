@@ -16,9 +16,9 @@
 
 use memchr::memchr_iter;
 use memmap2::MmapOptions;
+use parser_core::{Document, DocumentData, DocumentParser, ParseError};
 use rayon::prelude::*;
 use std::{fs::File, path::Path, sync::Arc};
-use parser_core::{Document, DocumentParser, ParseError, DocumentData};
 
 pub struct TxtParser;
 
@@ -76,11 +76,11 @@ impl TxtParser {
         // 6) Validation UTF-8
         if validate_utf8 {
             for &(start, len) in &offsets {
-                let slice = &data[start as usize .. (start + len) as usize];
+                let slice = &data[start as usize..(start + len) as usize];
                 std::str::from_utf8(slice)?;
             }
         } else if let Some(&(start, len)) = offsets.first() {
-            let slice = &data[start as usize .. (start + len) as usize];
+            let slice = &data[start as usize..(start + len) as usize];
             std::str::from_utf8(slice)?;
         }
 
@@ -125,11 +125,11 @@ impl TxtParser {
         // 4) Validation UTF-8
         if validate_utf8 {
             for &(start, len) in &offsets {
-                let slice = &data[start as usize .. (start + len) as usize];
+                let slice = &data[start as usize..(start + len) as usize];
                 std::str::from_utf8(slice)?;
             }
         } else if let Some(&(start, len)) = offsets.first() {
-            let slice = &data[start as usize .. (start + len) as usize];
+            let slice = &data[start as usize..(start + len) as usize];
             std::str::from_utf8(slice)?;
         }
         // 5) Copie le buffer dans un Arc<Vec<u8>> pour respecter l'API Document
@@ -141,7 +141,11 @@ impl TxtParser {
     }
 
     /// Parse un fichier texte en indexant seulement 1 ligne sur `stride` (index partiel).
-    pub fn parse_with_partial_index(path: &Path, stride: usize, validate_utf8: bool) -> Result<Document, ParseError> {
+    pub fn parse_with_partial_index(
+        path: &Path,
+        stride: usize,
+        validate_utf8: bool,
+    ) -> Result<Document, ParseError> {
         let file = File::open(path)?;
         let mmap = unsafe { MmapOptions::new().map(&file)? };
         let data = &mmap[..];
@@ -186,11 +190,11 @@ impl TxtParser {
         }
         if validate_utf8 {
             for &(start, len) in &offsets {
-                let slice = &data[start as usize .. (start + len) as usize];
+                let slice = &data[start as usize..(start + len) as usize];
                 std::str::from_utf8(slice)?;
             }
         } else if let Some(&(start, len)) = offsets.first() {
-            let slice = &data[start as usize .. (start + len) as usize];
+            let slice = &data[start as usize..(start + len) as usize];
             std::str::from_utf8(slice)?;
         }
         Ok(Document {
@@ -205,4 +209,3 @@ impl DocumentParser for TxtParser {
         Self::parse_with_validation(path, false)
     }
 }
-
