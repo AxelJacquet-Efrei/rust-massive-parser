@@ -1,4 +1,4 @@
-use core::{Document, DocumentParser, ParseError};
+use parser_core::{Document, DocumentData, DocumentParser, ParseError};
 use memchr::memchr_iter;
 use memmap2::MmapOptions;
 use rayon::prelude::*;
@@ -63,7 +63,7 @@ impl DocumentParser for TxtParser {
         }
 
         Ok(Document {
-            data: Arc::new(mmap),
+            data: DocumentData::Mmap(Arc::new(mmap)),
             offsets,
         })
     }
