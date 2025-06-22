@@ -23,6 +23,8 @@ jobs:
         run: cargo build --workspace --all-targets --release
       - name: Run tests
         run: cargo test --workspace --all-features --release
+      - name: Install rustfmt
+        run: rustup component add rustfmt || true
       - name: Check formatting
         run: cargo fmt --all -- --check
       - name: Audit dependencies
