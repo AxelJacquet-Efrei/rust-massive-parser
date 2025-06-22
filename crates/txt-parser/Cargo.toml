@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-core      = { path = "../core" }
+parser-core = { path = "../parser-core" }
 memmap2   = "0.5"
 memchr    = "2.4"
 rayon     = "1.5"
