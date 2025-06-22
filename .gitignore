@@ -11,3 +11,5 @@ Thumbs.db
 # Large test files (never version these)
 big.json
 fichier_1GB.txt
+fichier_1GB.csv
+fichier_1GB.json
