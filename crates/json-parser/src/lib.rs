@@ -78,19 +78,17 @@ impl JsonParser {
         let v = T::deserialize(&mut deser)?;
         Ok(v)
     }
-    /// Choix auto du mode selon le format (JSONL ou massif) et la taille.
+    /// Choix auto du mode selon la taille et le format (JSONL ou massif).
     pub fn parse_auto(path: &Path) -> Result<Vec<Value>, ParseError> {
-        // Détection du format
-        if Self::detect_jsonl(path)? {
-            // JSONL : parsing parallèle SIMD
-            Self::parse_jsonl_parallel_simd(path)
+        let metadata = std::fs::metadata(path)?;
+        if metadata.len() < 512 * 1024 * 1024 {
+            // < 512 Mo : charge tout en mémoire
+            Self::parse(path)
         } else {
-            // JSON standard (tableau ou objet) : streaming (faible RAM)
-            let v: Value = Self::parse_streaming(path)?;
-            if let Value::Array(arr) = v {
-                Ok(arr)
-            } else {
-                Ok(vec![v])
+            // > 512 Mo : tente JSONL mmap+rayon, sinon streaming
+            match Self::parse_jsonl_parallel(path) {
+                Ok(v) if !v.is_empty() => Ok(v),
+                _ => Ok(vec![Self::parse_streaming::<Value>(path)?]),
             }
         }
     }
@@ -125,24 +123,18 @@ impl JsonParser {
     }
 
     /// Détecte automatiquement si le fichier est JSONL (une ligne = un objet) ou JSON standard (objet/tableau).
-    pub fn detect_jsonl(path: &Path) -> Result<bool, ParseError> {
+    fn detect_jsonl(path: &Path) -> Result<bool, ParseError> {
         let file = File::open(path)?;
-        let reader = BufReader::new(file);
-        // On lit les 10 premières lignes non vides
-        let mut jsonl_lines = 0;
-        for line in reader.lines().take(10) {
-            if let Ok(l) = line {
-                let l = l.trim();
-                if !l.is_empty() {
-                    // Si la ligne est un objet JSON valide
-                    if l.starts_with('{') && l.ends_with('}') {
-                        jsonl_lines += 1;
-                    }
-                }
-            }
+        let mut reader = BufReader::new(file);
+        let mut buf = [0u8; 32];
+        let n = reader.read(&mut buf)?;
+        let s = std::str::from_utf8(&buf[..n])?.trim_start();
+        // Si ça commence par [ ou {, c'est du JSON standard
+        if s.starts_with('[') || s.starts_with('{') {
+            Ok(false)
+        } else {
+            Ok(true)
         }
-        // Si la majorité des 10 premières lignes sont des objets JSON, on considère que c'est du JSONL
-        Ok(jsonl_lines >= 5)
     }
 
     /// Parse un fichier JSON en mode auto, simd, ou streaming, ou JSONL parallèle.
@@ -226,5 +218,3 @@ impl JsonParser {
         <JsonParser as DocumentParser>::parse(path)
     }
 }
-
-pub mod convert_to_jsonl_mod;

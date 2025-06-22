@@ -1,12 +1,7 @@
 [workspace]
 members = [
-    "crates/cli",
-    "crates/parser-core",
-    "crates/txt-parser",
-    "crates/json-parser",
-    "crates/csv-parser"
+  "crates/core",
+  "crates/txt-parser",
+  "crates/cli",
 , "criterion-test"]
 resolver = "2"
-
-[profile.bench]
-debug = true

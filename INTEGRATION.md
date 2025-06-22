@@ -1,23 +1,22 @@
-# Intégration du parser massif TXT/CSV/TSV/JSON
+# Intégration du parser massif TXT/JSON/CSV/TSV
 
 Ce workspace fournit :
-- Des binaires CLI spécialisés (`txt-cli`, `csv-cli`, `json-cli`) pour chaque format.
+- Un CLI auto-adaptatif (`parser-cli`) pour fichiers texte, JSON (JSONL/tableau), CSV et TSV.
 - Des crates Rust modulaires : `parser-core`, `txt-parser`, `json-parser`, `csv-parser`.
 
 ## Utilisation CLI
 
 ```sh
 # Fichier texte
-./target/release/txt-cli fichier.txt
+parser-cli fichier.txt
 # Fichier JSON (JSONL ou tableau)
-./target/release/json-cli fichier.json
+parser-cli fichier.json
 # Fichier CSV
-./target/release/csv-cli fichier.csv
+parser-cli fichier.csv
 # Fichier TSV
-./target/release/csv-cli fichier.tsv
+parser-cli fichier.tsv
 ```
-- Refus explicite si le format ne correspond pas (code de sortie 2)
-- Parsing silencieux, ultra-rapide, prêt pour usage batch ou serveur web
+- Détection automatique du format, métriques détaillées, gestion des très gros fichiers.
 
 ## Utilisation en Rust (librairie)
 

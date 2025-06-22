@@ -1,9 +1,8 @@
 [package]
-name = "parser-core"
+name = "core"
 version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-thiserror = "2.0.12"
-memmap2   = "0.9.5"
-serde_json = "1.0"
+thiserror = "1.0"
+memmap2   = "0.5"

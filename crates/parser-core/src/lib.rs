@@ -2,12 +2,12 @@
 //!
 //! Garanties :
 //! - Zéro-copy (mmap)
-//! - Thread-safe (`Arc<Mmap>`)
+//! - Thread-safe (Arc<Mmap>)
 //! - Accès rapide aux lignes
 //! - API ergonomique pour serveurs ou batch
 
-use memmap2::Mmap;
 use std::{path::Path, sync::Arc};
+use memmap2::Mmap;
 
 /// Backend de données pour Document : mmap ou buffer mémoire.
 pub enum DocumentData {
@@ -33,8 +33,6 @@ pub enum ParseError {
     Utf8(#[from] std::str::Utf8Error),
     #[error("Index out of bounds: {0}")]
     Index(usize),
-    #[error("JSON error: {0}")]
-    Json(#[from] serde_json::Error),
 }
 
 /// Tout parser de document doit implémenter ce trait.
@@ -49,8 +47,8 @@ impl Document {
     pub fn lines(&self) -> impl Iterator<Item = &str> {
         self.offsets.iter().map(move |&(start, len)| {
             let slice = match &self.data {
-                DocumentData::Mmap(m) => &m[start as usize..(start + len) as usize],
-                DocumentData::Buffer(b) => &b[start as usize..(start + len) as usize],
+                DocumentData::Mmap(m) => &m[start as usize .. (start + len) as usize],
+                DocumentData::Buffer(b) => &b[start as usize .. (start + len) as usize],
             };
             unsafe { std::str::from_utf8_unchecked(slice) }
         })
@@ -75,8 +73,8 @@ impl Document {
     pub fn get_line(&self, idx: usize) -> Result<&str, ParseError> {
         if let Some(&(start, len)) = self.offsets.get(idx) {
             let slice = match &self.data {
-                DocumentData::Mmap(m) => &m[start as usize..(start + len) as usize],
-                DocumentData::Buffer(b) => &b[start as usize..(start + len) as usize],
+                DocumentData::Mmap(m) => &m[start as usize .. (start + len) as usize],
+                DocumentData::Buffer(b) => &b[start as usize .. (start + len) as usize],
             };
             // Safety: offsets garantis valides par le parser
             Ok(unsafe { std::str::from_utf8_unchecked(slice) })
@@ -89,8 +87,8 @@ impl Document {
     pub fn get_line_safe(&self, idx: usize) -> Result<&str, ParseError> {
         if let Some(&(start, len)) = self.offsets.get(idx) {
             let slice = match &self.data {
-                DocumentData::Mmap(m) => &m[start as usize..(start + len) as usize],
-                DocumentData::Buffer(b) => &b[start as usize..(start + len) as usize],
+                DocumentData::Mmap(m) => &m[start as usize .. (start + len) as usize],
+                DocumentData::Buffer(b) => &b[start as usize .. (start + len) as usize],
             };
             std::str::from_utf8(slice).map_err(ParseError::Utf8)
         } else {
@@ -101,7 +99,6 @@ impl Document {
     /// Itérateur streaming (sans indexation préalable, pour très gros fichiers)
     /// Peut être utilisé par un parser alternatif.
     pub fn streaming_lines(data: &[u8]) -> impl Iterator<Item = Result<&str, std::str::Utf8Error>> {
-        data.split(|&b| b == b'\n')
-            .map(|line| std::str::from_utf8(line))
+        data.split(|&b| b == b'\n').map(|line| std::str::from_utf8(line))
     }
 }

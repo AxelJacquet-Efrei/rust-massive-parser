@@ -6,27 +6,12 @@ edition = "2021"
 [dependencies]
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
-memmap2 = "0.9.5"
-rayon = "1.10.0"
+memmap2 = "0.5"
+rayon = "1.7"
 anyhow = "1.0"
-simd-json = { version = "0.15.1", features = ["serde_impl"] }
+simd-json = { version = "0.13", features = ["serde_impl"] }
 parser-core = { path = "../parser-core" }
 
 [dev-dependencies]
-criterion = "0.6.0"
-tempfile = "3.20.0"
-
-[[bin]]
-name = "bench_manual"
-path = "src/bench_manual.rs"
-
-[[bin]]
-name = "convert_to_jsonl"
-path = "src/convert_to_jsonl.rs"
-
-[[bin]]
-name = "bench_convert_and_parse"
-path = "src/bench_convert_and_parse.rs"
-
-[profile.bench]
-debug = true
+criterion = "0.5"
+tempfile = "3.8"
