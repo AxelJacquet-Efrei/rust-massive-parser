@@ -4,7 +4,6 @@ members = [
   "crates/txt-parser",
   "crates/cli",
   "crates/csv-parser",
-  "crates/json-parser",
-  "criterion-test"
+  "crates/json-parser"
 ]
 resolver = "2"
