@@ -40,7 +40,11 @@ impl DocumentParser for TxtParser {
                 let mut prev = 0;
                 for nl in memchr_iter(b'\n', slice) {
                     // On retire le \n du calcul de longueur
-                    let line_end = if nl > 0 && slice[nl - 1] == b'\r' { nl - 1 } else { nl };
+                    let line_end = if nl > 0 && slice[nl - 1] == b'\r' {
+                        nl - 1
+                    } else {
+                        nl
+                    };
                     local.push(((s + prev) as u32, (line_end - prev) as u32));
                     prev = nl + 1;
                 }

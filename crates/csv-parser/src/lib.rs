@@ -55,7 +55,11 @@ impl CsvParser {
                     for pos in memchr_iter(b'\n', slice) {
                         if idx % stride == 0 {
                             // On retire le \n du calcul de longueur
-                            let line_end = if pos > 0 && slice[pos - 1] == b'\r' { pos - 1 } else { pos };
+                            let line_end = if pos > 0 && slice[pos - 1] == b'\r' {
+                                pos - 1
+                            } else {
+                                pos
+                            };
                             local.push(((s + prev) as u32, (line_end - prev) as u32));
                         }
                         prev = pos + 1;

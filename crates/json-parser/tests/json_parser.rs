@@ -1,5 +1,6 @@
 use json_parser::JsonParser;
 use parser_core::Document;
+use serde_json::json;
 use std::io::Write;
 use tempfile::NamedTempFile;
 
@@ -36,28 +37,18 @@ fn test_parse_json_array() {
 
 #[test]
 fn test_parse_jsonl_exact() {
-    use serde_json::json;
     let mut file = NamedTempFile::new().unwrap();
     write!(file, "{{\"a\":1}}\n{{\"b\":2}}\n{{\"c\":3}}\n").unwrap();
-    let expected = vec![
-        json!({"a": 1}),
-        json!({"b": 2}),
-        json!({"c": 3}),
-    ];
+    let expected = vec![json!({"a": 1}), json!({"b": 2}), json!({"c": 3})];
     let doc_vec = JsonParser::parse_jsonl_parallel_simd(file.path()).unwrap();
     assert_eq!(doc_vec, expected);
 }
 
 #[test]
 fn test_parse_json_array_exact() {
-    use serde_json::json;
     let mut file = NamedTempFile::new().unwrap();
     write!(file, "[{{\"a\":1}},{{\"b\":2}},{{\"c\":3}}]").unwrap();
-    let expected = vec![
-        json!({"a": 1}),
-        json!({"b": 2}),
-        json!({"c": 3}),
-    ];
+    let expected = vec![json!({"a": 1}), json!({"b": 2}), json!({"c": 3})];
     let doc: Vec<serde_json::Value> = JsonParser::parse(file.path()).unwrap();
     // Si c'est un array unique, aplatit
     let parsed = if doc.len() == 1 && doc[0].is_array() {
