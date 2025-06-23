@@ -39,7 +39,9 @@ impl DocumentParser for TxtParser {
                 let mut local = Vec::with_capacity(slice.len() / 40 + 1); // estimation plus large
                 let mut prev = 0;
                 for nl in memchr_iter(b'\n', slice) {
-                    local.push(((s + prev) as u32, (nl - prev) as u32));
+                    // On retire le \n du calcul de longueur
+                    let line_end = if nl > 0 && slice[nl - 1] == b'\r' { nl - 1 } else { nl };
+                    local.push(((s + prev) as u32, (line_end - prev) as u32));
                     prev = nl + 1;
                 }
                 if prev < slice.len() {
@@ -56,8 +58,8 @@ impl DocumentParser for TxtParser {
             offsets.extend(v);
         }
 
-        // 6) Vérification explicite UTF-8 sur la première ligne (robustesse)
-        if let Some(&(start, len)) = offsets.first() {
+        // 6) Vérification explicite UTF-8 sur toutes les lignes (robustesse)
+        for &(start, len) in &offsets {
             let slice = &data[start as usize..(start + len) as usize];
             std::str::from_utf8(slice)?;
         }

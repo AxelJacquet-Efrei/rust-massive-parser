@@ -65,3 +65,20 @@ MIT
 ---
 
 Badges, CI, et publication à compléter selon vos besoins.
+
+## Robustesse & Qualité
+- Tous les parsers (TXT, CSV, JSON/JSONL) sont testés sur : succès, vide, fichier non trouvé, UTF-8 malformé (n'importe où), et erreurs de format.
+- Les tests sont stricts : chaque ligne/record est vérifiée sans tolérance sur les retours à la ligne ou l'encodage.
+- CI GitHub Actions : build, tests, clippy, couverture.
+- Hook git pré-push : `cargo fmt`, `cargo clippy`, `cargo test` auto avant chaque push.
+- Les gros fichiers de test (`fichier_1GB.*`) ne sont pas versionnés (voir `.gitignore`).
+
+## Structure du projet
+- `crates/cli` : binaire principal auto-adaptatif (TXT/CSV/JSON/JSONL)
+- `crates/txt-parser`, `crates/csv-parser`, `crates/json-parser` : crates spécialisées
+- `crates/parser-core` : cœur commun (Document, erreurs, mmap, etc.)
+- `benches/`, `tests/` dans chaque crate
+
+## Contribution
+- Merci de lancer `cargo fmt`, `cargo clippy` et `cargo test` avant tout commit/push (automatisé par le hook).
+- Benchmarks : voir dossiers `benches/` et instructions dans chaque crate.

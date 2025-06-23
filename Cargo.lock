@@ -397,6 +397,8 @@ name = "parser-cli"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "csv-parser",
+ "json-parser",
  "parser-core",
  "txt-parser",
 ]

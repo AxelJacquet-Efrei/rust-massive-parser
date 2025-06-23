@@ -8,9 +8,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let _ = args.next(); // skip program name
     let path: PathBuf = args
         .next()
-        .expect("Usage: json-cli <fichier.json> [mode]")
+        .expect("Usage: json-cli <fichier.json/jsonl>")
         .into();
-    let mode = args.next(); // Optionally: "jsonl", "simd", "stream"
     let ext = path
         .extension()
         .and_then(|e| e.to_str())
@@ -20,7 +19,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         eprintln!("Erreur : ce parser n'accepte que les fichiers .json ou .jsonl");
         exit(2); // code 2 : mauvaise extension
     }
-    match JsonParser::parse_mode(&path, mode.as_deref()) {
+    match JsonParser::parse_auto(&path) {
         Ok(_) => exit(0),
         Err(e) => {
             eprintln!("Erreur parsing JSON : {e}");

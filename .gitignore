@@ -14,3 +14,11 @@ fichier_1GB.txt
 fichier_1GB.csv
 fichier_1GB.json
 fichier_*.jsonl
+# Ignore big test files and local/IDE files
+fichier_1GB.*
+perf.data
+.vscode/
+target/
+*.swp
+*.tmp
+*.bak

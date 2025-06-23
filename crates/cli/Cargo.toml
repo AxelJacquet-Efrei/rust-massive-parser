@@ -7,3 +7,21 @@ edition = "2021"
 anyhow     = "1.0"
 parser-core = { path = "../parser-core" }
 txt-parser = { path = "../txt-parser" }
+csv-parser = { path = "../csv-parser" }
+json-parser = { path = "../json-parser" }
+
+[[bin]]
+name = "csv_main"
+path = "src/csv_main.rs"
+
+[[bin]]
+name = "json_main"
+path = "src/json_main.rs"
+
+[[bin]]
+name = "txt_main"
+path = "src/txt_main.rs"
+
+[[bin]]
+name = "parser-cli"
+path = "src/main.rs"

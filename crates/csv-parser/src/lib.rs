@@ -35,6 +35,9 @@ impl CsvParser {
     /// Indexe les offsets (start, len) de chaque ligne.
     fn compute_offsets(data: &[u8], stride: usize) -> Vec<(u32, u32)> {
         let len = data.len();
+        if len == 0 {
+            return Vec::new();
+        }
         let boundaries: Vec<(usize, usize)> = (0..len)
             .step_by(CHUNK_SIZE)
             .map(|s| (s, (s + CHUNK_SIZE).min(len)))
@@ -51,7 +54,9 @@ impl CsvParser {
                     let mut idx = 0;
                     for pos in memchr_iter(b'\n', slice) {
                         if idx % stride == 0 {
-                            local.push(((s + prev) as u32, (pos + 1 - prev) as u32));
+                            // On retire le \n du calcul de longueur
+                            let line_end = if pos > 0 && slice[pos - 1] == b'\r' { pos - 1 } else { pos };
+                            local.push(((s + prev) as u32, (line_end - prev) as u32));
                         }
                         prev = pos + 1;
                         idx += 1;
@@ -68,18 +73,11 @@ impl CsvParser {
             })
     }
 
-    /// Validation UTF-8 optionnelle.
-    fn validate(data: &[u8], offsets: &[(u32, u32)], full: bool) -> Result<(), ParseError> {
-        if full {
-            for &(st, ln) in offsets {
-                unsafe {
-                    let _ = std::str::from_utf8_unchecked(&data[st as usize..(st + ln) as usize]);
-                }
-            }
-        } else if let Some(&(st, ln)) = offsets.first() {
-            unsafe {
-                let _ = std::str::from_utf8_unchecked(&data[st as usize..(st + ln) as usize]);
-            }
+    /// Validation UTF-8 stricte sur toutes les lignes.
+    fn validate(data: &[u8], offsets: &[(u32, u32)], _full: bool) -> Result<(), ParseError> {
+        for &(st, ln) in offsets {
+            let slice = &data[st as usize..(st + ln) as usize];
+            std::str::from_utf8(slice)?;
         }
         Ok(())
     }
